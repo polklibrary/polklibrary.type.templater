@@ -1,0 +1,10 @@
+<div class="templater-section" >
+    <h2 class="templater-title">
+        <tal:block replace="python:context.title"></tal:block>
+        <a class="templater-option templater-option-edit" tal:condition="python: view.check_permission('Editor')" href="${context/absolute_url}/edit">
+            <span>&#9998;</span>
+        </a>
+    </h2>
+    <div class="templater-description" tal:condition="view/show_description" tal:content="context/description"></div>
+    <div class="templater-text" tal:content="structure python:context.text.output"></div>
+</div>

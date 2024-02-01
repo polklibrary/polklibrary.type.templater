@@ -1,0 +1,235 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="plone"
+	  lang="en">
+<body>
+
+
+	<metal:block fill-slot="javascript_head_slot">
+        <script type="text/javascript" src="${context/absolute_url}/++plone++static/components/ace-builds/src/ace.js"></script>
+        
+        <script type="text/javascript">
+            //$(document).ready(function(){
+            $(window).load(function(){
+                console.log("ready");
+                
+                var iframe = null;
+            
+                // JS         
+                var js_textarea = $('.editor-js');
+                var editor_js = ace.edit('editor-js');
+                editor_js.setTheme("ace/theme/chrome");
+                editor_js.getSession().setMode("ace/mode/html");
+                editor_js.getSession().setValue(js_textarea.val());
+                editor_js.getSession().on('change', function(){
+                    js_textarea.val(editor_js.getSession().getValue());
+                });
+            
+                // CSS
+                var css_textarea = $('.editor-css');
+                var editor_css = ace.edit('editor-css');
+                editor_css.setTheme("ace/theme/chrome");
+                editor_css.getSession().setMode("ace/mode/html");
+                editor_css.getSession().setValue(css_textarea.val());
+                editor_css.getSession().on('change', function(){
+                    css_textarea.val(editor_css.getSession().getValue());
+                    if (iframe != null) {
+                        $(iframe).find('head').find('style.ht-marker').remove();
+                        var style = editor_css.getSession().getValue();
+                        style = style.replace('<style','<style class="ht-marker"');
+                        $(iframe).find('head').append(style);
+                    }
+                });
+
+                
+                // HTML
+                var html_textarea = $('.editor-html');
+                var editor_html = ace.edit('editor-html');
+                editor_html.setTheme("ace/theme/chrome");
+                editor_html.getSession().setMode("ace/mode/html");
+                editor_html.getSession().setValue(html_textarea.val());
+                editor_html.getSession().on('change', function(){
+                    html_textarea.val(editor_html.getSession().getValue());
+                    if (iframe != null)
+                        $(iframe).find('#content-core').html(editor_html.getSession().getValue());
+                    //Templater.html = editor_html.getSession().getValue();
+                });
+                
+                // Open Preview
+                $('#form-buttons-preview').click(function(){
+                    var args = {}
+                    $('#form input, #form textarea').each(function(){
+                        args[$(this).attr('name')] = $(this).val();
+                    });
+                    $.post($('body').attr('data-base-url') + '/html_preview', args, function (data) {
+                        var w = window.open($('body').attr('data-base-url') + '/html_preview', 'Preview','height=800, width=1280, resizable=yes, scrollbars=yes, toolbar=no, menubar=no, location=no, directories=no, status=yes');
+                        w.document.write(data);
+                        w.document.close();
+                    });
+                });
+                
+                // Live Preview
+                var preview_loaded = false;
+                $('#preview-on').click(function(){
+                    if (!preview_loaded) {
+                        preview_loaded = true;
+                        $('body').append( $('<iframe>').attr({'id': 'preview', 'src': $('body').attr('data-base-url')}));
+                        $('body').addClass('preview-on-expand');
+                        $('#preview').load(function(){
+                            iframe = $(this).contents();
+                            $(iframe).find('#edit-zone').hide();
+                            $(iframe).find('.plone-toolbar-left-expanded, .plone-toolbar-left-default ').css('padding','inherit');
+                        });
+                    }
+                });
+                
+            });
+        </script>
+        
+	</metal:block>
+    
+	<metal:block fill-slot="style_slot">
+        <style>
+            .editor-js, .editor-css, .editor-html{
+                display: none;
+            }
+            .field-pad {
+                margin-top: 20px;
+            }
+            .ace_editor {
+                border: 1px solid #777777;
+                height: 400px;
+                max-width: 1000px;
+            }
+            .preview-button{
+                background-color: #24c54f !important;
+                color: white !important;
+            }
+            #preview {
+                border: 0px none;
+                border-top: 5px solid #007BB3;
+                bottom: 0;
+                height: 400px;
+                left: 0;
+                position: fixed;
+                right: 0;
+                width: 100%;
+                z-index: 100000;
+            }
+            body.preview-on-expand{
+                padding-bottom: 400px;
+            }
+        </style>
+	</metal:block>
+
+	<metal:content fill-slot="content-core">
+    
+        <form id="form" enctype="multipart/form-data" method="post" action="${context/absolute_url}/@@edit" class="rowlike enableUnloadProtection   kssattr-formname-edit" data-pat-autotoc="levels: legend; section: fieldset; className: autotabs">
+            <!-- Default fieldset -->
+            <div id="formfield-form-widgets-title" data-fieldname="form.widgets.title" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.title" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-title">
+                Title
+                <span title="Required" class="required horizontal">&nbsp;</span>
+                </label>
+                <div class="fieldErrorBox"></div>
+                <input type="text" value="${context/Title}" class="text-widget required textline-field" name="form.widgets.title" id="form-widgets-title">
+            </div>
+            
+            <div id="formfield-form-widgets-description" data-fieldname="form.widgets.description" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.description empty" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-description">
+                Description
+                </label>
+                <div class="fieldErrorBox"></div>
+                <textarea class="textarea-widget text-field" name="form.widgets.description" id="form-widgets-description">${context/Description}</textarea>
+            </div>
+            
+            <div id="formfield-form-widgets-js" data-fieldname="form.widgets.js" class="field-pad field pat-inlinevalidation kssattr-fieldname-form.widgets.js empty" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-js">
+                Javascript
+                <span class="formHelp">: You must include the &lt;script&gt; wrappers</span>
+                </label>
+                <div class="fieldErrorBox"></div>
+                <textarea class="editor-js textarea-widget text-field" name="form.widgets.js" id="form-widgets-js">${context/js}</textarea>
+            </div>
+            <div id="editor-js"></div>
+            
+            <div id="formfield-form-widgets-css" data-fieldname="form.widgets.css" class="field-pad field pat-inlinevalidation kssattr-fieldname-form.widgets.css" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-css">
+                CSS
+                <span class="formHelp">: You must include the &lt;style&gt; wrappers</span>
+                </label>
+                <div class="fieldErrorBox"></div>
+                <textarea class="editor-css textarea-widget text-field" name="form.widgets.css" id="form-widgets-css">${context/css}</textarea>
+            </div>
+            <div id="editor-css"></div>
+            
+            <div id="formfield-form-widgets-html" data-fieldname="form.widgets.html" class="field-pad field pat-inlinevalidation kssattr-fieldname-form.widgets.html" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-html">
+                HTML
+                </label>
+                <div class="fieldErrorBox"></div>
+                <textarea class="editor-html textarea-widget text-field" name="form.widgets.html" id="form-widgets-html">${context/html}</textarea>
+            </div>
+            <div id="editor-html"></div>
+            
+            <div id="formfield-form-widgets-suppress_title" data-fieldname="form.widgets.suppress_title" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.suppress_title" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <span id="form-widgets-suppress_title" class="option">
+                <input type="checkbox" tal:attributes="checked python: context.suppress_title"  value="selected" class="single-checkbox-widget bool-field" name="form.widgets.suppress_title:list" id="form-widgets-suppress_title-0">
+                <label for="form-widgets-suppress_title-0">
+                <span class="label">Suppress Title</span>
+                </label>
+                </span>
+                <input type="hidden" value="1" name="form.widgets.suppress_title-empty-marker" >
+                <div class="fieldErrorBox"></div>
+            </div>
+            
+            <div id="formfield-form-widgets-suppress_description" data-fieldname="form.widgets.suppress_description" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.suppress_description" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <span id="form-widgets-suppress_description" class="option">
+                <input type="checkbox" tal:attributes="checked python: context.suppress_description" value="selected" class="single-checkbox-widget bool-field" name="form.widgets.suppress_description:list" id="form-widgets-suppress_description-0">
+                <label for="form-widgets-suppress_description-0">
+                <span class="label">Suppress Description</span>
+                </label>
+                </span>
+                <input type="hidden" value="1" name="form.widgets.suppress_description-empty-marker" >
+                <div class="fieldErrorBox"></div>
+            </div>
+            
+            <div id="formfield-form-widgets-exclude_from_nav" data-fieldname="form.widgets.exclude_from_nav" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.exclude_from_nav" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <span id="form-widgets-exclude_from_nav" class="option">
+                <input type="checkbox" tal:attributes="checked python: context.exclude_from_nav" value="selected" class="single-checkbox-widget bool-field" name="form.widgets.exclude_from_nav:list" id="form-widgets-exclude_from_nav-0">
+                <label for="form-widgets-exclude_from_nav-0">
+                <span class="label">Exclude from nav</span>
+                </label>
+                </span>
+                <input type="hidden" value="1" name="form.widgets.exclude_from_nav-empty-marker">
+                <div class="fieldErrorBox"></div>
+            </div>
+            
+            <div id="formfield-form-widgets-set_context" data-fieldname="form.widgets.set_context" class="field pat-inlinevalidation kssattr-fieldname-form.widgets.set_context" data-pat-inlinevalidation="{&quot;type&quot;:&quot;z3c.form&quot;}">
+                <label class="horizontal" for="form-widgets-set_context">
+                Set Context
+                <span class="formHelp">: If provided, this page will load in the object context of the provided path: e.x. /yoursite/folder/my-document</span>
+                <span title="Required" class="required horizontal">&nbsp;</span>
+                </label>
+                <div class="fieldErrorBox"></div>
+                <input type="text" value="${context/set_context}" class="text-widget required textline-field" name="form.widgets.set_context" id="form-widgets-set_context">
+            </div>
+            
+            <!-- Secondary fieldsets -->
+            <div class="formControls">
+                <!-- <input type="button" value="Enable Live Preview? (Only HTML/CSS)" class="submit-widget button-field standalone preview-button" id="preview-on"> -->
+                <!-- <input type="button" value="Preview All Changes" class="submit-widget button-field standalone preview-button" name="form.buttons.preview" id="form-buttons-preview"> -->
+                <input type="submit" value="Save" class="submit-widget button-field context" name="form.buttons.save" id="form-buttons-save">
+                <input type="submit" value="Cancel" class="submit-widget button-field standalone" name="form.buttons.cancel" id="form-buttons-cancel">
+            </div>
+        </form>
+
+
+    
+    
+	</metal:content>
+
+</body>
+</html>

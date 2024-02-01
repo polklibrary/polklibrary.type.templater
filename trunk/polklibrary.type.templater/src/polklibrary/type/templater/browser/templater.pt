@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="plone"
+	  lang="en">
+<body>
+
+	<metal:block fill-slot="javascript_head_slot">
+        <tal:block content="structure context/js" />
+        <script type="text/javascript" src="${view/portal/absolute_url}/++resource++polklibrary.type.templater/templater_micros.js"></script>
+	</metal:block>
+    
+	<metal:block fill-slot="style_slot">
+        <tal:block content="structure view/get_style" />
+        <link rel="stylesheet" type="text/css" href="${view/portal/absolute_url}/++resource++polklibrary.type.templater/templater_micros.css" />
+	</metal:block>
+    
+    <metal:content-title fill-slot="content-title" >
+        <h1 tal:condition="not: context/suppress_title" class="documentFirstHeading">${context/Title}</h1>
+    </metal:content-title>
+
+	<metal:content-description fill-slot="content-description">
+        <div tal:condition="not: context/suppress_description" class="documentDescription description">${context/Description}</div>
+    </metal:content-description>
+
+	<metal:content fill-slot="content-core">
+        <tal:block content="structure view/get_html" />
+	</metal:content>
+
+</body>
+</html>

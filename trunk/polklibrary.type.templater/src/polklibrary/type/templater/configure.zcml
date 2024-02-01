@@ -1,0 +1,46 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    i18n_domain="polklibrary.type.templater">
+
+  <includeDependencies package="." />
+
+  <i18n:registerTranslations directory="locales" />
+
+  <include package=".browser" />
+  <include package=".models" />
+
+
+  <genericsetup:registerProfile
+      name="default"
+      title="polklibrary.type.templater"
+      directory="profiles/default"
+      description="Installs the polklibrary.type.templater add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+  <genericsetup:importStep
+      name="polklibrary.type.templater-postInstall"
+      title="polklibrary.type.templater post_install import step"
+      description="Post install import step from polklibrary.type.templater"
+      handler=".setuphandlers.post_install">
+  </genericsetup:importStep>
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="polklibrary.type.templater"
+      directory="profiles/uninstall"
+      description="Uninstalls the polklibrary.type.templater add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+  <genericsetup:importStep
+      name="polklibrary.type.templater-uninstall"
+      title="polklibrary.type.templater uninstall import step"
+      description="Import step run during ininstalling polklibrary.type.templater"
+      handler=".setuphandlers.uninstall">
+  </genericsetup:importStep>
+
+</configure>

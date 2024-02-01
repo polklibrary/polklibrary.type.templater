@@ -1,0 +1,43 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="polklibrary.type.templater">
+
+    <!-- Set overrides folder for Just-a-Bunch-Of-Templates product -->
+    <include package="z3c.jbot" file="meta.zcml" />
+    <browser:jbot
+        directory="overrides"
+        layer="polklibrary.type.templater.interfaces.IPolklibraryTypeTemplaterLayer"
+        />
+
+    <!-- Publish static files -->
+    <browser:resourceDirectory
+        name="polklibrary.type.templater"
+        directory="static"
+        />
+        
+        
+    <browser:page
+        for="polklibrary.type.templater.models.templater.ITemplater"
+        name="html_view"
+        class=".templater.Templater"
+        permission="zope2.View"
+        />
+        
+    <browser:page
+        for="polklibrary.type.templater.models.templater.ITemplater"
+        name="edit_templater"
+        template="edit_templater.pt"
+        permission="zope2.View"
+        />
+      
+    <browser:page
+        for="polklibrary.type.templater.models.templater.ITemplater"
+        name="html_preview"
+        class=".templater.PreviewTemplater"
+        permission="zope2.View"
+        />
+      
+      
+</configure>
